@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>設定画面</title>
+</head>
+<body>
+    <h1>空き時間の設定</h1>
+    <form method="POST" action="{{ url_for('get_free_times') }}">
+        <label for="start_date">開始日:</label>
+        <input type="date" id="start_date" name="start_date" required><br><br>
+
+        <label for="end_date">終了日:</label>
+        <input type="date" id="end_date" name="end_date" required><br><br>
+
+        <label for="day_start_hour">開始時間:</label>
+        <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="8" required><br><br>
+
+        <label for="day_end_hour">終了時間:</label>
+        <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="19" required><br><br>
+
+        <label for="include_holidays">祝日を含む:</label>
+        <input type="checkbox" id="include_holidays" name="include_holidays"><br><br>
+
+        <button type="submit">空き時間を表示</button>
+    </form>
+</body>
+</html>
