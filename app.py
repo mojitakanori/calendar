@@ -17,17 +17,50 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
+# ログインに使用するユーザー情報のダミーデータ
+users = {
+    "a": "a"
+}
 
 @app.route('/')
 def index():
+    # 通常のログイン確認
+    if 'logged_in' not in session or not session['logged_in']:
+        return redirect(url_for('login'))
+    
+    # Googleアカウントのログインがまだならリダイレクト
     if 'credentials' not in session:
-        return render_template('login.html')
-    else:
-        return redirect(url_for('settings'))
+        return redirect(url_for('login_google'))
+    
+    return redirect(url_for('settings'))
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # ユーザー名とパスワードのチェック
+        if username in users and users[username] == password:
+            session['logged_in'] = True
+            return redirect(url_for('settings'))
+        else:
+            flash('ユーザー名またはパスワードが違います。')
+            return render_template('login.html')
+    
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    session.pop('credentials', None)
+    return redirect(url_for('login'))
+
+
+@app.route('/login_google')
+def login_google():
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
@@ -50,32 +83,35 @@ def oauth2callback():
     try:
         flow.fetch_token(authorization_response=request.url)
         credentials = flow.credentials
+        # セッションに資格情報を保存
         session['credentials'] = credentials_to_dict(credentials)
     except Exception as e:
-        flash(f'認証中にエラーが発生しました: {e}')
+        flash(f'Google認証中にエラーが発生しました: {e}')
         return redirect(url_for('index'))
 
     return redirect(url_for('settings'))
 
 
+
 @app.route('/settings')
 def settings():
-    if 'credentials' not in session:
-        return redirect('login')
-
+    # 通常ログインが済んでいるか確認
+    if 'logged_in' not in session or not session['logged_in']:
+        return redirect(url_for('login'))
+    
     return render_template('settings.html')
 
 
 @app.route('/get_free_times', methods=['POST'])
 def get_free_times():
     if 'credentials' not in session:
-        return redirect('login')
+        return redirect('login_google')
 
     # ユーザーがフォームで選択したデータを取得
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
     include_holidays = request.form.get('include_holidays') == 'on'
-
+    
     day_start_hour = int(request.form.get('day_start_hour'))
     day_end_hour = int(request.form.get('day_end_hour'))
 
@@ -93,6 +129,7 @@ def get_free_times():
     credentials = Credentials(**session['credentials'])
     service = build('calendar', 'v3', credentials=credentials)
 
+    # fetch_free_times関数の呼び出し
     free_times_dict = fetch_free_times(
         service, start_date, end_date, day_start_hour, day_end_hour,
         not include_holidays, exclude_keywords
@@ -175,14 +212,17 @@ def parse_event_time(event_time):
 
 
 def is_holiday(date, service):
-    if date.weekday() >= 5:
-        return True
-
+    # 休日のカレンダーID (GoogleカレンダーAPI)
     holidays_calendar_id = 'ja.japanese#holiday@group.v.calendar.google.com'
+    
+    # タイムゾーンを東京に設定
     tz = pytz.timezone('Asia/Tokyo')
+    
+    # その日の始まりと終わりの時間を設定
     day_start = tz.localize(datetime.combine(date, time(0, 0, 0)))
     day_end = tz.localize(datetime.combine(date, time(23, 59, 59)))
 
+    # Googleカレンダーから当日のイベント（休日）を取得
     events_result = service.events().list(
         calendarId=holidays_calendar_id,
         timeMin=day_start.isoformat(),
@@ -191,6 +231,7 @@ def is_holiday(date, service):
         orderBy='startTime'
     ).execute()
 
+    # 休日のイベントがあればTrueを返す
     holidays = events_result.get('items', [])
     return len(holidays) > 0
 
@@ -202,12 +243,14 @@ def format_time_range(start_time, end_time):
 
 
 def credentials_to_dict(credentials):
-    return {'token': credentials.token,
-            'refresh_token': credentials.refresh_token,
-            'token_uri': credentials.token_uri,
-            'client_id': credentials.client_id,
-            'client_secret': credentials.client_secret,
-            'scopes': credentials.scopes}
+    return {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
 
 
 if __name__ == '__main__':
