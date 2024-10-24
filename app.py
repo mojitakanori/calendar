@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, time
 import pytz
 import os
 from dateutil.parser import isoparse
+import openai 
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -16,6 +17,9 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Google APIの設定
 CLIENT_SECRETS_FILE = 'client_secret.json'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+
+# ChatGPT APIキーを設定
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # ログインに使用するユーザー情報のダミーデータ
 users = {
@@ -82,7 +86,7 @@ def oauth2callback():
         session['credentials'] = credentials_to_dict(credentials)
     except Exception as e:
         flash(f'Google認証中にエラーが発生しました: {e}')
-        return redirect(url_for('index'))
+        return redirect('/')
 
     return redirect('/')
 
@@ -122,6 +126,104 @@ def get_free_times():
 
     return render_template('free_times.html', free_times=free_times_dict)
 
+##################################
+#　GPTへの問い合わせ
+##################################
+
+@app.route('/get_reply', methods=['POST'])
+def get_reply():
+    # フォームから受け取ったメールの本文を取得
+    received_email = request.form.get('received_email')
+    print(received_email)
+    if not received_email:
+        # このままだとユーザには通知されない
+        print("メールの本文を入力してください。", "error")
+        return render_template('settings.html')  # 適切なテンプレートを返す
+    
+    # GPTに問い合わせを行い、返信メールを生成
+    reply_email = chatgpt_generate_reply(received_email)
+
+    # GPTが生成した返信メール内に[empty_day]があるか確認し、空き時間に置き換える
+    if '[empty_day]' in reply_email:
+        if 'credentials' not in session:
+            return redirect('login_google')
+
+        # 空き時間の検索に必要なデータをフォームから取得
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        include_holidays = request.form.get('include_holidays') == 'on'
+        
+        day_start_hour = request.form.get('day_start_hour')
+        day_end_hour = request.form.get('day_end_hour')
+
+        # None または空文字チェック
+        if not day_start_hour or not day_end_hour:
+            # これブラウザにも送信されるようにしたい
+            print("開始時間または終了時間が設定されていません。")
+            return redirect('/')
+
+        # 整数変換
+        day_start_hour = int(day_start_hour)
+        day_end_hour = int(day_end_hour)
+
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+
+        # Google Calendar APIのサービスを使って空き時間を取得
+        credentials = Credentials(**session['credentials'])
+        service = build('calendar', 'v3', credentials=credentials)
+
+        # 空き時間を取得
+        free_times_dict = fetch_free_times(
+            service, start_date, end_date, day_start_hour, day_end_hour, not include_holidays, []
+        )
+
+        # 空き時間を整形して[empty_day]を置き換える
+        reply_email = reply_email.replace('[empty_day]', format_free_times(free_times_dict))
+
+    # 結果の返信メールを表示
+    return render_template('settings.html', reply_email=reply_email)
+
+def chatgpt_generate_reply(received_email):
+    system_message = (
+        "あなたは、ビジネスメールの作成をサポートするアシスタントです。以下のメールに対して、ユーザーが企業またはOBOGに対して丁寧でフォーマルな返信を作成してください。"
+        "メールの内容は、敬意を持ち、ビジネスコミュニケーションにふさわしい言葉遣いを使用することを心掛けます。"
+        "返信内容には次の要素を含めてください。"
+        "1. メールの宛先として、相手の会社名や名前を最初に記載してください。"
+        "2. メールの冒頭では「お世話になっております。○○所属の○○（名前）です。ご返信いただきありがとうございます。」としてください。"
+        "3. 本文では、相手のメールに対して適切な感謝の意を伝えつつ、質問やリクエストに答えてください。"
+        "日程調整が必要な場合は、『以下が私の都合の良い日程です。』のように改行し、その後に [empty_day] タグを単体で使用して、空き時間を提案してください。文中に埋め込まず、改行して単体で表記してください。"
+        "4. メールの最後には、以下の署名を含めてください。--- [ユーザーの名前] [ユーザーの大学名・所属] [ユーザーの連絡先情報] ---"
+    )
+
+    try:
+        completion = openai.ChatCompletion.create(
+            model="gpt-4o", 
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": f"相手からのメール内容は以下です： 「{received_email}」"}
+            ]
+        )
+        # ChatCompletionMessage オブジェクトの正しいプロパティを参照
+        refined_text = completion['choices'][0]['message']['content']
+        print(refined_text)
+        return refined_text
+    except Exception as e:
+        print(f"Error calling ChatGPT API: {e}")
+        return received_email
+
+
+def format_free_times(free_times):
+    # 空き時間リストを文字列に整形
+    free_times_list = []
+    for date, times in free_times.items():
+        for time in times:
+            free_times_list.append(f"{date} {time}")
+    return ', '.join(free_times_list)
+
+##################################
+#　空き時間検索のロジック
+##################################
 
 def fetch_free_times(service, start_date, end_date, day_start_hour, day_end_hour, exclude_holidays, exclude_keywords):
     free_times = {}
@@ -236,6 +338,8 @@ def credentials_to_dict(credentials):
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
+
+
 
 
 if __name__ == '__main__':
