@@ -27,12 +27,7 @@ def index():
     # 通常のログイン確認
     if 'logged_in' not in session or not session['logged_in']:
         return redirect(url_for('login'))
-    
-    # Googleアカウントのログインがまだならリダイレクト
-    if 'credentials' not in session:
-        return redirect(url_for('login_google'))
-    
-    return redirect(url_for('settings'))
+    return render_template('settings.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -44,7 +39,7 @@ def login():
         # ユーザー名とパスワードのチェック
         if username in users and users[username] == password:
             session['logged_in'] = True
-            return redirect(url_for('settings'))
+            return redirect('/')
         else:
             flash('ユーザー名またはパスワードが違います。')
             return render_template('login.html')
@@ -89,17 +84,7 @@ def oauth2callback():
         flash(f'Google認証中にエラーが発生しました: {e}')
         return redirect(url_for('index'))
 
-    return redirect(url_for('settings'))
-
-
-
-@app.route('/settings')
-def settings():
-    # 通常ログインが済んでいるか確認
-    if 'logged_in' not in session or not session['logged_in']:
-        return redirect(url_for('login'))
-    
-    return render_template('settings.html')
+    return redirect('/')
 
 
 @app.route('/get_free_times', methods=['POST'])
