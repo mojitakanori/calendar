@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <title>空き時間結果</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空き時間検索</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,29 +37,64 @@
         #free-time-result {
             margin-bottom: 20px;
         }
+
+        .hidden {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
-    <h1>空き時間結果</h1>
-    <div id="free-time-result">
-        {% set last_date = None %}
-        {% for date_str, times in free_times.items() %}
-            {% if last_date and last_date != date_str %}
-                <br>  <!-- 日付ごとに改行を挿入 -->
-            {% endif %}
-            <h3>{{ date_str }}</h3>
-            {% for time_range in times %}
-                <span class="time-range">{{ time_range }}</span>
+
+    <h1>空き時間検索</h1>
+    <form method="POST" action="{{ url_for('free_times') }}">
+        <label for="start_date">開始日:</label>
+        <input type="date" id="start_date" name="start_date" required><br><br>
+
+        <label for="end_date">終了日:</label>
+        <input type="date" id="end_date" name="end_date" required><br><br>
+
+        <label for="day_start_hour">開始時間:</label>
+        <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="8" required><br><br>
+
+        <label for="day_end_hour">終了時間:</label>
+        <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="19" required><br><br>
+
+        <label for="include_holidays">祝日を含む:</label>
+        <input type="checkbox" id="include_holidays" name="include_holidays"><br><br>
+
+        <button type="submit">空き時間を検索</button>
+    </form>
+
+    <div id="free-time-result" class="{% if not free_times %}hidden{% endif %}">
+        <h1>空き時間結果</h1>
+        {% if free_times %}
+            {% set last_date = None %}
+            {% for date_str, times in free_times.items() %}
+                {% if last_date and last_date != date_str %}
+                    <br>  <!-- 日付ごとに改行を挿入 -->
+                {% endif %}
+                <h3>{{ date_str }}</h3>
+                {% for time_range in times %}
+                    <span class="time-range">{{ time_range }}</span>
+                {% endfor %}
+                {% set last_date = date_str %}
             {% endfor %}
-            {% set last_date = date_str %}
-        {% endfor %}
+        {% endif %}
     </div>
 
-    <button id="copy-btn" onclick="copyToClipboard()">コピー</button>
+    <button id="copy-btn" class="{% if not free_times %}hidden{% endif %}" onclick="copyToClipboard()">コピー</button>
 
     <script>
         function copyToClipboard() {
-            var text = document.getElementById('free-time-result').innerText;
+            // コピーするテキストから "空き時間結果" を除外
+            var resultDiv = document.getElementById('free-time-result');
+            var text = '';
+            var spans = resultDiv.querySelectorAll('span.time-range');
+            spans.forEach(function(span) {
+                text += span.innerText + '\n';
+            });
+
             var textArea = document.createElement("textarea");
             textArea.value = text;
             document.body.appendChild(textArea);
@@ -67,5 +104,6 @@
             alert("空き時間がクリップボードにコピーされました!");
         }
     </script>
+
 </body>
 </html>
