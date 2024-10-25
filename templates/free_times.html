@@ -4,99 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>空き時間検索</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        h3 {
-            margin: 5px 0;
-            font-size: 1.2em;
-        }
-
-        span.time-range {
-            display: block;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        #copy-btn {
-            margin-top: 20px;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-        }
-
-        #copy-btn:hover {
-            background-color: #45a049;
-        }
-
-        #free-time-result {
-            margin-bottom: 20px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-    </style>
+    <!-- 共通CSSの読み込み -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- ページ専用のCSSの読み込み -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='free_times.css') }}">
 </head>
 <body>
 
-    <h1>空き時間検索</h1>
-    <form method="POST" action="{{ url_for('free_times') }}">
-        <label for="start_date">開始日:</label>
-        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
+    <!-- ヘッダー -->
+    <header>
+        <h1>空き時間検索システム</h1>
+        <nav>
+            <a href="/">ホーム</a>
+            <a href="{{ url_for('free_times') }}">空き時間検索</a>
+            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
+        </nav>
+    </header>
 
-        <label for="end_date">終了日:</label>
-        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
+    <!-- メインコンテンツ -->
+    <main>
+        <h2>空き時間検索</h2>
+        <form method="POST" action="{{ url_for('free_times') }}">
+            <label for="start_date">開始日:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
 
-        <label for="day_start_hour">開始時間:</label>
-        <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" required><br><br>
+            <label for="end_date">終了日:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
 
-        <label for="day_end_hour">終了時間:</label>
-        <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" required><br><br>
+            <label for="day_start_hour">開始時間:</label>
+            <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" required><br><br>
 
-        <label for="include_holidays">祝日を含む:</label>
-        <input type="checkbox" id="include_holidays" name="include_holidays" {% if include_holidays %}checked{% endif %}><br><br>
+            <label for="day_end_hour">終了時間:</label>
+            <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" required><br><br>
 
-        <button type="submit">空き時間を検索</button>
-    </form>
+            <label for="include_holidays">祝日を含む:</label>
+            <input type="checkbox" id="include_holidays" name="include_holidays" {% if include_holidays %}checked{% endif %}><br><br>
 
-    <div id="free-time-result" class="{% if not free_times %}hidden{% endif %}">
-        <h1>空き時間結果</h1>
-        {% if free_times %}
-            {% set last_date = None %}
-            {% for date_str, times in free_times.items() %}
-                {% if last_date and last_date != date_str %}
-                    <br>  <!-- 日付ごとに改行を挿入 -->
-                {% endif %}
-                <h3>{{ date_str }}</h3>
-                {% for time_range in times %}
-                    <span class="time-range">{{ time_range }}</span>
+            <button type="submit">空き時間を検索</button>
+        </form>
+
+        <div id="free-time-result" class="{% if not free_times %}hidden{% endif %}">
+            <h3>空き時間結果</h3>
+            {% if free_times %}
+                {% set last_date = None %}
+                {% for date_str, times in free_times.items() %}
+                    {% if last_date and last_date != date_str %}
+                        <br>  <!-- 日付ごとに改行を挿入 -->
+                    {% endif %}
+                    <h4>{{ date_str }}</h4>
+                    {% for time_range in times %}
+                        <span class="time-range">{{ time_range }}</span>
+                    {% endfor %}
+                    {% set last_date = date_str %}
                 {% endfor %}
-                {% set last_date = date_str %}
-            {% endfor %}
-        {% endif %}
-    </div>
+            {% endif %}
+            <button id="copy-btn" onclick="copyToClipboard()">コピー</button>
+        </div>
 
-    <button id="copy-btn" class="{% if not free_times %}hidden{% endif %}" onclick="copyToClipboard()">コピー</button>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
+    </footer>
 
     <script>
         function copyToClipboard() {
-            // コピーするテキストから "空き時間結果" を除外
             var resultDiv = document.getElementById('free-time-result');
             var text = '';
-            var spans = resultDiv.querySelectorAll('span.time-range');
-            spans.forEach(function(span) {
-                text += span.innerText + '\n';
+    
+            // 日付と時間を取得する
+            var current_date = null;
+            var spans = resultDiv.querySelectorAll('h4, span.time-range');
+    
+            spans.forEach(function(element) {
+                if (element.tagName.toLowerCase() === 'h4') {
+                    // 日付を取得
+                    current_date = element.innerText;
+                    text += '\n' + current_date + '\n';  // 日付を改行とともに追加
+                } else if (element.tagName.toLowerCase() === 'span') {
+                    // 時間範囲を追加
+                    text += element.innerText + '\n';  // 時間も改行とともに追加
+                }
             });
 
             var textArea = document.createElement("textarea");
-            textArea.value = text;
+            textArea.value = text.trim();  // 最後の余計な改行を削除
             document.body.appendChild(textArea);
             textArea.select();
             document.execCommand("copy");

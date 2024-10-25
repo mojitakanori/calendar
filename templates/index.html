@@ -4,58 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ホームページ</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1.2em;
-            margin: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
 
-    <h1>ホームページ</h1>
-    <div class="btn-container">
-        <a href="{{ url_for('get_reply') }}">
-            <button>返信メール作成</button>
-        </a>
-        <a href="{{ url_for('free_times') }}">
-            <button>空き時間検索</button>
-        </a>
-    </div>
-    
-    
-    
-    
+    <!-- ヘッダー -->
+    <header>
+        <h1>空き時間検索システム</h1>
+        <nav>
+            <a href="/">ホーム</a>
+            <a href="{{ url_for('free_times') }}">空き時間検索</a>
+            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
+        </nav>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main>
+        <h2>ようこそ！</h2>
+        <p>このシステムは、あなたの空き時間を簡単に検索し、メールの返信作成をサポートするためのツールです。目的に合わせて、以下の機能をお使いください。</p>
+        
+        <div class="btn-container">
+            <a href="{{ url_for('free_times') }}">空き時間検索</a>
+            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
+        </div>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
+    </footer>
 
 </body>
 </html>

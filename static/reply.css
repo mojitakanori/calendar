@@ -1,0 +1,102 @@
+/* replyページ専用のスタイル */
+
+h2 {
+    color: #2c3e50;
+    font-size: 2em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    font-weight: bold;
+    color: #333;
+}
+
+form input, form textarea, form button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+form button {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+#reply-container {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #e9f7e9;
+    border-radius: 8px;
+    border: 1px solid #4CAF50;
+    display: none; /* 初期は非表示 */
+}
+
+#reply-container.hidden {
+    display: none;
+}
+
+#reply-container.visible {
+    display: block;
+}
+
+.reply-container h3 {
+    font-size: 1.5em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.editable-textarea {
+    width: 100%;
+    height: 200px;
+    font-size: 1em;
+    padding: 10px;
+    margin-top: 10px;
+    resize: vertical;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#copy-btn {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+}
+
+#copy-btn:hover {
+    background-color: #45a049;
+}
+
+/* 非表示にするスタイル */
+.hidden {
+    display: none;
+}

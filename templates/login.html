@@ -1,18 +1,44 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-    <title>ログインページ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <!-- 共通CSSの読み込み -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- ページ専用のCSSの読み込み -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
 <body>
-    <h1>ユーザーログイン</h1>
-    <form method="POST" action="{{ url_for('login') }}">
-        <label for="username">ユーザー名:</label>
-        <input type="text" id="username" name="username" required><br><br>
 
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password" required><br><br>
+    <!-- ヘッダー -->
+    <header>
+        <h1>空き時間検索システム</h1>
+        <nav>
+            <a href="/">ホーム</a>
+            <a href="{{ url_for('free_times') }}">空き時間検索</a>
+            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
+        </nav>
+    </header>
 
-        <button type="submit">ログイン</button>
-    </form>
+    <!-- メインコンテンツ -->
+    <main>
+        <h2>ログイン</h2>
+        <form method="POST" action="{{ url_for('login') }}">
+            <label for="username">ユーザー名:</label>
+            <input type="text" id="username" name="username" required><br><br>
+
+            <label for="password">パスワード:</label>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <button type="submit">ログイン</button>
+        </form>
+    </main>
+
+    <!-- フッター -->
+    <footer>
+        <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
+    </footer>
+
 </body>
 </html>

@@ -1,0 +1,101 @@
+/* 全体のスタイル */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ヘッダーのスタイル */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+nav a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* フッターのスタイル */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9em;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* メディアクエリ（スマホ対応） */
+@media (max-width: 768px) {
+    /* ヘッダーのスタイル */
+    header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    nav {
+        margin-top: 10px;
+    }
+
+    nav a {
+        margin-left: 0;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    header h1 {
+        font-size: 1.2em;
+    }
+
+    /* フッターのスタイル */
+    footer {
+        padding: 10px;
+        font-size: 0.8em;
+    }
+}
+
+/* メディアクエリ（モバイル端末での全体スタイル） */
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        font-size: 0.9em;
+    }
+
+    header h1 {
+        font-size: 1.1em;
+    }
+
+    nav a {
+        font-size: 0.9em;
+        padding: 5px;
+    }
+
+    footer {
+        font-size: 0.75em;
+        padding: 8px;
+    }
+}
