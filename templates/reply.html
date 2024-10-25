@@ -36,7 +36,6 @@
             margin-top: 30px;
         }
 
-        /* 編集可能なテキストエリアのスタイル */
         .editable-textarea {
             width: 100%;
             height: 300px;
@@ -65,31 +64,27 @@
 
     <h1>返信メール作成</h1>
     <form method="POST" action="{{ url_for('get_reply') }}">
-        <!-- メール本文入力フィールド -->
         <label for="received_email">受け取ったメールの本文:</label>
-        <textarea id="received_email" name="received_email" required></textarea><br>
+        <textarea id="received_email" name="received_email" required>{{ received_email }}</textarea><br>
 
-        <!-- 空き時間情報の設定 -->
         <label for="start_date">開始日:</label>
-        <input type="date" id="start_date" name="start_date" required><br><br>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
 
         <label for="end_date">終了日:</label>
-        <input type="date" id="end_date" name="end_date" required><br><br>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
 
         <label for="day_start_hour">開始時間:</label>
-        <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="8" required><br><br>
+        <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" required><br><br>
 
         <label for="day_end_hour">終了時間:</label>
-        <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="19" required><br><br>
+        <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" required><br><br>
 
         <label for="include_holidays">祝日を含む:</label>
-        <input type="checkbox" id="include_holidays" name="include_holidays"><br><br>
+        <input type="checkbox" id="include_holidays" name="include_holidays" {% if include_holidays %}checked{% endif %}><br><br>
 
-        <!-- 返信メール作成ボタン -->
         <button type="submit">返信メールを生成</button>
     </form>
 
-    <!-- 生成された返信メールの表示と編集可能なテキストエリア -->
     <div class="reply-container">
         {% if reply_email %}
             <h2>生成された返信メール</h2>

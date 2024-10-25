@@ -29,9 +29,8 @@ users = {
 @app.route('/')
 def index():
     # 通常のログイン確認
-    # 今だけログイン画面無視
-    # if 'logged_in' not in session or not session['logged_in']:
-    #     return redirect(url_for('login'))
+    if 'logged_in' not in session or not session['logged_in']:
+        return redirect(url_for('login'))
     return render_template('index.html')
 
 
@@ -95,8 +94,6 @@ def oauth2callback():
 @app.route('/free_times', methods=['GET', 'POST'])
 def free_times():
     if request.method == 'POST':
-        if 'credentials' not in session:
-            return redirect('login_google')
 
         # フォームから入力されたデータを取得
         start_date = request.form.get('start_date')
@@ -105,18 +102,34 @@ def free_times():
         day_start_hour = int(request.form.get('day_start_hour'))
         day_end_hour = int(request.form.get('day_end_hour'))
 
+        # 入力内容をセッションに保存
+        session['start_date'] = start_date
+        session['end_date'] = end_date
+        session['include_holidays'] = include_holidays
+        session['day_start_hour'] = day_start_hour
+        session['day_end_hour'] = day_end_hour
+
+        # グーグルアカウントでログインされていなかったら除外する。
+        if 'credentials' not in session:
+            return redirect('login_google')
+
+        # Google Calendarから空き時間を取得して処理
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-
-        # Google Calendarから空き時間を取得
         credentials = Credentials(**session['credentials'])
         service = build('calendar', 'v3', credentials=credentials)
         free_times_dict = fetch_free_times(service, start_date, end_date, day_start_hour, day_end_hour, not include_holidays, [])
 
-        return render_template('free_times.html', free_times=free_times_dict)
+        return render_template('free_times.html', start_date=start_date, end_date=end_date, include_holidays=include_holidays, day_start_hour=day_start_hour, day_end_hour=day_end_hour, free_times=free_times_dict)
 
-    # GETリクエストの場合は単純にフォームを表示
-    return render_template('free_times.html')
+    # GETリクエストの場合、セッションのデータを引き出し初期値としてフォームに設定
+    start_date = session.get('start_date', '')
+    end_date = session.get('end_date', '')
+    include_holidays = session.get('include_holidays', False)
+    day_start_hour = session.get('day_start_hour', 8)
+    day_end_hour = session.get('day_end_hour', 19)
+
+    return render_template('free_times.html', start_date=start_date, end_date=end_date, include_holidays=include_holidays, day_start_hour=day_start_hour, day_end_hour=day_end_hour)
 
 
 ##################################
@@ -125,16 +138,39 @@ def free_times():
 @app.route('/get_reply', methods=['GET', 'POST'])
 def get_reply():
     if request.method == 'GET':
-        # GETリクエストが来た場合、返信メール作成ページを表示
-        return render_template('reply.html')
+        # セッションからデータを取得し初期値として利用
+        start_date = session.get('start_date', '')
+        end_date = session.get('end_date', '')
+        day_start_hour = session.get('day_start_hour', 8)
+        day_end_hour = session.get('day_end_hour', 19)
+        include_holidays = session.get('include_holidays', False)
+        received_email = session.get('received_email', '')
+
+        return render_template('reply.html', start_date=start_date, end_date=end_date,
+                               day_start_hour=day_start_hour, day_end_hour=day_end_hour,
+                               include_holidays=include_holidays, received_email=received_email)
 
     if request.method == 'POST':
+        # ユーザが入力したデータを取得してセッションに保存
         received_email = request.form.get('received_email')
-        if not received_email:
-            return render_template('reply.html')  # フォームに戻す
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        day_start_hour = int(request.form.get('day_start_hour'))
+        day_end_hour = int(request.form.get('day_end_hour'))
+        include_holidays = request.form.get('include_holidays') == 'on'
 
-        # GPTに問い合わせを行い、返信メールを生成
-        reply_email = chatgpt_generate_reply(received_email)
+        session['received_email'] = received_email
+        session['start_date'] = start_date
+        session['end_date'] = end_date
+        session['day_start_hour'] = day_start_hour
+        session['day_end_hour'] = day_end_hour
+        session['include_holidays'] = include_holidays
+
+        if not received_email:
+            reply_email = "入力欄が空です！  送られてきたメールを入力してください！"
+        else:
+            # GPTに問い合わせを行い、返信メールを生成
+            reply_email = chatgpt_generate_reply(received_email)
 
         # GPTが生成した返信メール内に[empty_day]があるか確認し、空き時間に置き換える
         if '[empty_day]' in reply_email:
@@ -160,8 +196,9 @@ def get_reply():
             reply_email = reply_email.replace('[empty_day]', format_free_times(free_times_dict))
 
         # 結果の返信メールを表示
-        return render_template('reply.html', reply_email=reply_email)
-
+        return render_template('reply.html', reply_email=reply_email, received_email=received_email,
+                               start_date=start_date, end_date=end_date, day_start_hour=day_start_hour,
+                               day_end_hour=day_end_hour, include_holidays=include_holidays)
 
 def chatgpt_generate_reply(received_email):
     system_message = (
