@@ -43,11 +43,17 @@
             <label for="end_date">終了日:</label>
             <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
 
-            <label for="day_start_hour">開始時間:</label>
-            <input type="number" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" required><br><br>
-
-            <label for="day_end_hour">終了時間:</label>
-            <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" required><br><br>
+            <div class="slider-container">
+                <label for="day_start_hour">開始時間:</label>
+                <input type="range" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" oninput="startHourOutput.value = day_start_hour.value">
+                <output id="startHourOutput">{{ day_start_hour }}</output>
+            </div>
+    
+            <div class="slider-container">
+                <label for="day_end_hour">終了時間:</label>
+                <input type="range" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" oninput="endHourOutput.value = day_end_hour.value">
+                <output id="endHourOutput">{{ day_end_hour }}</output>
+            </div>
 
             <div id="checkbox-container">
                 <input id="include_holidays" type="checkbox" name="include_holidays" {% if include_holidays %}checked{% endif %}>
@@ -75,6 +81,7 @@
     <footer>
         <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
     </footer>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
     <script>
         function copyToClipboard() {
@@ -82,10 +89,6 @@
             textArea.select();
             document.execCommand("copy");
             alert("返信メールがクリップボードにコピーされました!");
-        }
-        function toggleMenu() {
-            const navMenu = document.getElementById('nav-menu');
-            navMenu.classList.toggle('open');
         }
         // フォーム送信時にローディングを表示
         document.querySelector('form').addEventListener('submit', function(event) {

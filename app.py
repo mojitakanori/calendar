@@ -46,7 +46,7 @@ def login():
             session['logged_in'] = True
             return redirect('/')
         else:
-            # flash('ユーザー名またはパスワードが違います。')
+            flash('ユーザー名またはパスワードが間違っています。', 'error')
             return render_template('login.html')
     
     return render_template('login.html')
@@ -61,6 +61,9 @@ def logout():
 
 @app.route('/login_google')
 def login_google():
+    # 元のURLをセッションに保存
+    session['next_url'] = request.referrer
+
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
@@ -89,7 +92,9 @@ def oauth2callback():
         flash(f'Google認証中にエラーが発生しました: {e}')
         return redirect('/')
 
-    return redirect('/')
+    # ログイン前のページに戻る
+    next_url = session.pop('next_url', '/')
+    return redirect(next_url)
 
 
 @app.route('/free_times', methods=['GET', 'POST'])
@@ -123,6 +128,10 @@ def free_times():
 
         return render_template('free_times.html', start_date=start_date, end_date=end_date, include_holidays=include_holidays, day_start_hour=day_start_hour, day_end_hour=day_end_hour, free_times=free_times_dict)
 
+    # 通常のログイン確認
+    if 'logged_in' not in session or not session['logged_in']:
+        return redirect(url_for('login'))
+
     # GETリクエストの場合、セッションのデータを引き出し初期値としてフォームに設定
     start_date = session.get('start_date', '')
     end_date = session.get('end_date', '')
@@ -139,6 +148,9 @@ def free_times():
 @app.route('/get_reply', methods=['GET', 'POST'])
 def get_reply():
     if request.method == 'GET':
+        # 通常のログイン確認
+        if 'logged_in' not in session or not session['logged_in']:
+            return redirect(url_for('login'))
         # セッションからデータを取得し初期値として利用
         start_date = session.get('start_date', '')
         end_date = session.get('end_date', '')
@@ -172,6 +184,7 @@ def get_reply():
 
         if not received_email:
             reply_email = "入力欄が空です！  送られてきたメールを入力してください！"
+            flash('入力欄が空です！', 'error')        
         else:
             # GPTに問い合わせを行い、返信メールを生成
             reply_email = chatgpt_generate_reply(received_email)

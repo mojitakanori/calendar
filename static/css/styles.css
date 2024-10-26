@@ -1,3 +1,28 @@
+/* ポップアップ用 */
+.flash-messages {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+.flash-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.flash-message.error {
+    background-color: #f44336; /* 赤色 */
+}
+
+.flash-message.success {
+    background-color: #4CAF50; /* 緑色 */
+}
+
+
+
 /* ヘッダーの基本スタイル */
 header {
     background-color: #4CAF50;

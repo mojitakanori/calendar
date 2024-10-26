@@ -76,6 +76,63 @@ form button:hover {
     background-color: #45a049;
 }
 
+
+/* スライダーコンテナのスタイル */
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+/* スライダーのスタイル */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;  
+    width: 200px;
+    height: 6px;
+    background: #ddd;
+    outline: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+input[type="range"]:hover {
+    background: #88dd8b;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 現在の値の表示スタイル */
+output {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #4CAF50;
+    min-width: 30px;
+    text-align: center;
+}
+
+
+
 /* チェックボックスのカスタムスタイル */
 #checkbox-container {
     display: flex;
