@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ホームページ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
 
     <!-- ヘッダー -->
     <header>
         <h1>空き時間検索システム</h1>
-        <nav>
+        <!-- ハンバーガーメニューアイコン -->
+        <div class="hamburger-menu" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <!-- ナビゲーションメニュー -->
+        <nav id="nav-menu">
             <a href="/">ホーム</a>
             <a href="{{ url_for('free_times') }}">空き時間検索</a>
             <a href="{{ url_for('get_reply') }}">返信メール作成</a>
@@ -28,12 +35,47 @@
             <a href="{{ url_for('free_times') }}">空き時間検索</a>
             <a href="{{ url_for('get_reply') }}">返信メール作成</a>
         </div>
+
+        <h3>Googleカレンダーの連携について</h3>
+        <p>このシステムはGoogleカレンダーから予定を取得しているため、Googleアカウントでのログインが必要となります。Googleカレンダーへのアクセスを許可してくださいますようお願いいたします。</p>
+
+        <!-- Googleログインボタン -->
+        <div class="btn-container">
+            <a href="{{ url_for('login_google') }}" class="google-login-btn">Googleでログイン</a>
+        </div>
+
+        <!-- プロフィールセクション -->
+        <section class="profile-section">
+            <h3>制作者プロフィール</h3>
+            <div class="profile-container">
+                <div class="profile-photo">
+                    <!-- 写真が配置される場所 -->
+                    <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="茂治孝典の写真">
+                </div>
+                <div class="profile-info">
+                    <p>茂治孝典</p>
+                    <p>同志社大学理工学部インテリジェント情報工学科</p>
+                    <p><a href="mailto:cguh0033@mail4.doshisha.ac.jp">cguh0033@mail4.doshisha.ac.jp</a></p>
+                    <h4>各種アカウント</h4>
+                    <p>GitHub: <a href="https://github.com/mojitakanori">https://github.com/mojitakanori</a></p>
+                    <p>Zenn: <a href="https://zenn.dev/mojitakanori">https://zenn.dev/mojitakanori</a></p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- フッター -->
     <footer>
         <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
     </footer>
+
+    <script>
+        function toggleMenu() {
+            const navMenu = document.getElementById('nav-menu');
+            navMenu.classList.toggle('open');
+        }
+    </script>
 
 </body>
 </html>

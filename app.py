@@ -23,6 +23,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # ログインに使用するユーザー情報のダミーデータ
 users = {
+    "doshisha": "mojitakanori",
     "a": "a"
 }
 
@@ -144,7 +145,10 @@ def get_reply():
         day_start_hour = session.get('day_start_hour', 8)
         day_end_hour = session.get('day_end_hour', 19)
         include_holidays = session.get('include_holidays', False)
-        received_email = session.get('received_email', '')
+        # ファイルからデフォルトのメール内容を読み込む
+        with open('static/default_email.txt', 'r', encoding='utf-8') as f:
+            default_email_content = f.read()
+        received_email = session.get('received_email', default_email_content)
 
         return render_template('reply.html', start_date=start_date, end_date=end_date,
                                day_start_hour=day_start_hour, day_end_hour=day_end_hour,

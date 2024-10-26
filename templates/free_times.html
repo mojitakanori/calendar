@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>空き時間検索</title>
-    <!-- 共通CSSの読み込み -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- ページ専用のCSSの読み込み -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='free_times.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/free_times.css') }}">
 </head>
 <body>
 
     <!-- ヘッダー -->
     <header>
         <h1>空き時間検索システム</h1>
-        <nav>
+        <!-- ハンバーガーメニューアイコン -->
+        <div class="hamburger-menu" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <!-- ナビゲーションメニュー -->
+        <nav id="nav-menu">
             <a href="/">ホーム</a>
             <a href="{{ url_for('free_times') }}">空き時間検索</a>
             <a href="{{ url_for('get_reply') }}">返信メール作成</a>
@@ -37,11 +42,19 @@
             <label for="day_end_hour">終了時間:</label>
             <input type="number" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" required><br><br>
 
-            <label for="include_holidays">祝日を含む:</label>
-            <input type="checkbox" id="include_holidays" name="include_holidays" {% if include_holidays %}checked{% endif %}><br><br>
+            <div id="checkbox-container">
+                <input id="include_holidays" type="checkbox" name="include_holidays" {% if include_holidays %}checked{% endif %}>
+                <label for="include_holidays">祝日を含む</label>
+            </div>
 
             <button type="submit">空き時間を検索</button>
         </form>
+
+        <!-- ローディングGIF -->
+        <div id="loading" class="loading-container hidden">
+            <img src="{{ url_for('static', filename='images/loading.gif') }}" alt="Loading">
+            <p>検索中...</p>
+        </div>        
 
         <div id="free-time-result" class="{% if not free_times %}hidden{% endif %}">
             <h3>空き時間結果</h3>
@@ -96,6 +109,14 @@
             document.body.removeChild(textArea);
             alert("空き時間がクリップボードにコピーされました!");
         }
+        function toggleMenu() {
+            const navMenu = document.getElementById('nav-menu');
+            navMenu.classList.toggle('open');
+        }
+        // フォーム送信時にローディングを表示
+        document.querySelector('form').addEventListener('submit', function(event) {
+            document.getElementById('loading').classList.remove('hidden');
+        });        
     </script>
 
 </body>

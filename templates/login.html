@@ -4,21 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン</title>
-    <!-- 共通CSSの読み込み -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- ページ専用のCSSの読み込み -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
 
     <!-- ヘッダー -->
     <header>
         <h1>空き時間検索システム</h1>
-        <nav>
-            <a href="/">ホーム</a>
-            <a href="{{ url_for('free_times') }}">空き時間検索</a>
-            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
-        </nav>
     </header>
 
     <!-- メインコンテンツ -->

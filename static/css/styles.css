@@ -1,0 +1,105 @@
+/* ヘッダーの基本スタイル */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between; /* アイテムを左右に配置 */
+    align-items: center; /* 垂直方向で中央揃え */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+header h1 {
+    font-size: 1.5em;
+    margin: 0;
+    white-space: nowrap; /* タイトルが折り返されないようにする */
+}
+
+/* ナビゲーションメニュー */
+nav {
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* ハンバーガーメニューアイコンのスタイル */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 22px;
+    cursor: pointer;
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    border-radius: 2px;
+}
+
+
+@media (max-width: 768px) {
+    /* ヘッダーの中の要素を水平に並べる */
+    header {
+        flex-direction: row; /* 横並びを維持 */
+    }
+
+    /* ナビゲーションメニューはモバイルでは非表示 */
+    nav {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        background-color: #4CAF50;
+        width: 100%;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        z-index: 999;
+    }
+
+    nav.open {
+        display: flex;
+    }
+
+    nav a {
+        margin: 10px 0;
+        font-size: 1.2em;
+    }
+
+    /* ハンバーガーメニューはモバイルで表示 */
+    .hamburger-menu {
+        display: flex;
+        margin-left: auto; /* ハンバーガーメニューを右側に配置 */
+    }
+}
+
+/* メニューが開かれた際にテキストが被らないようにする */
+nav.open + main {
+    margin-top: 100px; /* メニュー分のスペースを確保 */
+}
+
+/* フッターのスタイル */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9em;
+}
+
+footer p {
+    margin: 0;
+}
