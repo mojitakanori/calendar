@@ -105,6 +105,8 @@ def free_times():
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         include_holidays = request.form.get('include_holidays') == 'on'
+        print("休日含むかどうか！！！！！！！！！！！！これ")
+        print(include_holidays)
         day_start_hour = int(request.form.get('day_start_hour'))
         day_end_hour = int(request.form.get('day_end_hour'))
 
@@ -335,7 +337,11 @@ def parse_event_time(event_time):
 
 
 def is_holiday(date, service):
-    # 休日のカレンダーID (GoogleカレンダーAPI)
+    # 土曜日または日曜日ならTrueを返す
+    if date.weekday() == 5 or date.weekday() == 6:  # 土曜日（5）、日曜日（6）
+        return True
+
+    # 祝日カレンダーID (GoogleカレンダーAPI)
     holidays_calendar_id = 'ja.japanese#holiday@group.v.calendar.google.com'
     
     # タイムゾーンを東京に設定
@@ -354,7 +360,7 @@ def is_holiday(date, service):
         orderBy='startTime'
     ).execute()
 
-    # 休日のイベントがあればTrueを返す
+    # 祝日イベントがあればTrueを返す
     holidays = events_result.get('items', [])
     return len(holidays) > 0
 
