@@ -1,102 +1,69 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>返信メール作成</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/reply.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+{% extends "base.html" %}
 
-</head>
-<body>
+{% block title %}返信メール作成{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reply.css') }}">
+{% endblock %}
 
-    <!-- ヘッダー -->
-    <header>
-        <h1>空き時間検索システム</h1>
-        <!-- ハンバーガーメニューアイコン -->
-        <div class="hamburger-menu" onclick="toggleMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <!-- ナビゲーションメニュー -->
-        <nav id="nav-menu">
-            <a href="/">ホーム</a>
-            <a href="{{ url_for('free_times') }}">空き時間検索</a>
-            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
-        </nav>
-    </header>
+{% block content %}
+    <h2>返信メール作成</h2>
+    <div class="alert">
+        <span class="alert-icon">⚠️</span>
+        <p class="alert-text">ここに入力される情報はChatGPTに送信されます。ご理解の上ご利用ください。</p>
+    </div>
+    <form method="POST" action="{{ url_for('reply.get_reply') }}">
+        <label for="received_email">受け取ったメールの本文(初期値はデモ用):</label>
+        <textarea id="received_email" name="received_email" required>{{ received_email }}</textarea><br><br>
 
-    <!-- メインコンテンツ -->
-    <main>
-        <h2>返信メール作成</h2>
-        <div class="alert">
-            <span class="alert-icon">⚠️</span>
-            <p class="alert-text">ここに入力される情報はChatGPTに送信されます。ご理解の上ご利用ください。</p>
-        </div>        
-        <form method="POST" action="{{ url_for('get_reply') }}">
-            <label for="received_email">受け取ったメールの本文(初期値はデモ用):</label>
-            <textarea id="received_email" name="received_email" required>{{ received_email }}</textarea><br><br>
+        <label for="start_date">開始日:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
 
-            <label for="start_date">開始日:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
+        <label for="end_date">終了日:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
 
-            <label for="end_date">終了日:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
-
-            <div class="slider-container">
-                <label for="day_start_hour">開始時間:</label>
-                <input type="range" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" oninput="startHourOutput.value = day_start_hour.value">
-                <output id="startHourOutput">{{ day_start_hour }}</output>
-            </div>
-    
-            <div class="slider-container">
-                <label for="day_end_hour">終了時間:</label>
-                <input type="range" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" oninput="endHourOutput.value = day_end_hour.value">
-                <output id="endHourOutput">{{ day_end_hour }}</output>
-            </div>
-
-            <div id="checkbox-container">
-                <input id="include_holidays" type="checkbox" name="include_holidays" {% if include_holidays %}checked{% endif %}>
-                <label for="include_holidays">祝日・休日を含む</label>
-            </div>
-
-            <button type="submit">返信メールを生成</button>
-        </form>
-
-        <!-- ローディングGIF -->
-        <div id="loading" class="loading-container hidden">
-            <img src="{{ url_for('static', filename='images/loading.gif') }}" alt="Loading">
-            <p>検索中...</p>
+        <div class="slider-container">
+            <label for="day_start_hour">開始時間:</label>
+            <input type="range" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" oninput="startHourOutput.value = day_start_hour.value">
+            <output id="startHourOutput">{{ day_start_hour }}</output>
         </div>
 
-        <!-- 返信メール結果の表示エリア。返信メールがない場合は非表示。 -->
-        <div id="reply-container" class="{% if reply_email %}visible{% else %}hidden{% endif %}">
-            <h3>生成された返信メール</h3>
-            <textarea id="reply-textarea" class="editable-textarea" readonly>{{ reply_email }}</textarea>
-            <button id="copy-btn" onclick="copyToClipboard()">コピー</button>
-        </div>        
-    </main>
+        <div class="slider-container">
+            <label for="day_end_hour">終了時間:</label>
+            <input type="range" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" oninput="endHourOutput.value = day_end_hour.value">
+            <output id="endHourOutput">{{ day_end_hour }}</output>
+        </div>
 
-    <!-- フッター -->
-    <footer>
-        <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
-    </footer>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <div id="checkbox-container">
+            <input id="include_holidays" type="checkbox" name="include_holidays" {% if include_holidays %}checked{% endif %}>
+            <label for="include_holidays">祝日・休日を含む</label>
+        </div>
 
-    <script>
-        function copyToClipboard() {
-            var textArea = document.getElementById('reply-textarea');
-            textArea.select();
-            document.execCommand("copy");
-            alert("返信メールがクリップボードにコピーされました!");
-        }
-        // フォーム送信時にローディングを表示
-        document.querySelector('form').addEventListener('submit', function(event) {
-            document.getElementById('loading').classList.remove('hidden');
-        });
-    </script>
+        <button type="submit">返信メールを生成</button>
+    </form>
 
-</body>
-</html>
+    <!-- ローディングGIF -->
+    <div id="loading" class="loading-container hidden">
+        <img src="{{ url_for('static', filename='images/loading.gif') }}" alt="Loading">
+        <p>検索中...</p>
+    </div>    
+
+    <div id="reply-container" class="{% if reply_email %}visible{% else %}hidden{% endif %}">
+        <h3>生成された返信メール</h3>
+        <textarea id="reply-textarea" class="editable-textarea" readonly>{{ reply_email }}</textarea>
+        <button id="copy-btn" onclick="copyToClipboard()">コピー</button>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyToClipboard() {
+        var textArea = document.getElementById('reply-textarea');
+        textArea.select();
+        document.execCommand("copy");
+        alert("返信メールがクリップボードにコピーされました!");
+    }
+    document.querySelector('form').addEventListener('submit', function(event) {
+        document.getElementById('loading').classList.remove('hidden');
+    });
+</script>
+{% endblock %}

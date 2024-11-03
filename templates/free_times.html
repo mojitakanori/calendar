@@ -1,127 +1,87 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空き時間検索</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/free_times.css') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-</head>
-<body>
+{% extends "base.html" %}
 
-    <!-- ヘッダー -->
-    <header>
-        <h1>空き時間検索システム</h1>
-        <!-- ハンバーガーメニューアイコン -->
-        <div class="hamburger-menu" onclick="toggleMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
+{% block title %}空き時間検索{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/free_times.css') }}">
+{% endblock %}
+
+{% block content %}
+    <h2>空き時間検索</h2>
+    <form method="POST" action="{{ url_for('calendar.free_times') }}">
+        <label for="start_date">開始日:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
+
+        <label for="end_date">終了日:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
+
+        <div class="slider-container">
+            <label for="day_start_hour">開始時間:</label>
+            <input type="range" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" oninput="startHourOutput.value = day_start_hour.value">
+            <output id="startHourOutput">{{ day_start_hour }}</output>
         </div>
-        <!-- ナビゲーションメニュー -->
-        <nav id="nav-menu">
-            <a href="/">ホーム</a>
-            <a href="{{ url_for('free_times') }}">空き時間検索</a>
-            <a href="{{ url_for('get_reply') }}">返信メール作成</a>
-        </nav>
-    </header>
 
-    <!-- メインコンテンツ -->
-    <main>
-        <h2>空き時間検索</h2>
-        <form method="POST" action="{{ url_for('free_times') }}">
-            <label for="start_date">開始日:</label>
-            <input type="date" id="start_date" name="start_date" value="{{ start_date }}" required><br><br>
+        <div class="slider-container">
+            <label for="day_end_hour">終了時間:</label>
+            <input type="range" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" oninput="endHourOutput.value = day_end_hour.value">
+            <output id="endHourOutput">{{ day_end_hour }}</output>
+        </div>
 
-            <label for="end_date">終了日:</label>
-            <input type="date" id="end_date" name="end_date" value="{{ end_date }}" required><br><br>
+        <div id="checkbox-container">
+            <input id="include_holidays" type="checkbox" name="include_holidays" {% if include_holidays %}checked{% endif %}>
+            <label for="include_holidays">祝日・休日を含む</label>
+        </div>
 
-            <div class="slider-container">
-                <label for="day_start_hour">開始時間:</label>
-                <input type="range" id="day_start_hour" name="day_start_hour" min="0" max="23" value="{{ day_start_hour }}" oninput="startHourOutput.value = day_start_hour.value">
-                <output id="startHourOutput">{{ day_start_hour }}</output>
-            </div>
-    
-            <div class="slider-container">
-                <label for="day_end_hour">終了時間:</label>
-                <input type="range" id="day_end_hour" name="day_end_hour" min="0" max="23" value="{{ day_end_hour }}" oninput="endHourOutput.value = day_end_hour.value">
-                <output id="endHourOutput">{{ day_end_hour }}</output>
-            </div>
+        <button type="submit">空き時間を検索</button>
+    </form>
 
-            <div id="checkbox-container">
-                <input id="include_holidays" type="checkbox" name="include_holidays" {% if include_holidays %}checked{% endif %}>
-                <label for="include_holidays">祝日・休日を含む</label>
-            </div>
+    <!-- ローディングGIF -->
+    <div id="loading" class="loading-container hidden">
+        <img src="{{ url_for('static', filename='images/loading.gif') }}" alt="Loading">
+        <p>検索中...</p>
+    </div>       
 
-            <button type="submit">空き時間を検索</button>
-        </form>
-
-        <!-- ローディングGIF -->
-        <div id="loading" class="loading-container hidden">
-            <img src="{{ url_for('static', filename='images/loading.gif') }}" alt="Loading">
-            <p>検索中...</p>
-        </div>        
-
-        <div id="free-time-result" class="{% if not free_times %}hidden{% endif %}">
-            <h3>空き時間結果</h3>
-            {% if free_times %}
-                {% set last_date = None %}
-                {% for date_str, times in free_times.items() %}
-                    {% if last_date and last_date != date_str %}
-                        <br>  <!-- 日付ごとに改行を挿入 -->
-                    {% endif %}
-                    <h4>{{ date_str }}</h4>
-                    {% for time_range in times %}
-                        <span class="time-range">{{ time_range }}</span>
-                    {% endfor %}
-                    {% set last_date = date_str %}
+    <div id="free-time-result" class="{% if not free_times %}hidden{% endif %}">
+        <h3>空き時間結果</h3>
+        {% if free_times %}
+            {% set last_date = None %}
+            {% for date_str, times in free_times.items() %}
+                {% if last_date and last_date != date_str %}
+                    <br>
+                {% endif %}
+                <h4>{{ date_str }}</h4>
+                {% for time_range in times %}
+                    <span class="time-range">{{ time_range }}</span>
                 {% endfor %}
-            {% endif %}
-            <button id="copy-btn" onclick="copyToClipboard()">コピー</button>
-        </div>
+                {% set last_date = date_str %}
+            {% endfor %}
+        {% endif %}
+        <button id="copy-btn" onclick="copyToClipboard()">コピー</button>
+    </div>
+{% endblock %}
 
-    </main>
-
-    <!-- フッター -->
-    <footer>
-        <p>&copy; 2024 空き時間検索システム. All rights reserved.</p>
-    </footer>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-
-    <script>
-        function copyToClipboard() {
-            var resultDiv = document.getElementById('free-time-result');
-            var text = '';
-    
-            // 日付と時間を取得する
-            var current_date = null;
-            var spans = resultDiv.querySelectorAll('h4, span.time-range');
-    
-            spans.forEach(function(element) {
-                if (element.tagName.toLowerCase() === 'h4') {
-                    // 日付を取得
-                    current_date = element.innerText;
-                    text += '\n' + current_date + '\n';  // 日付を改行とともに追加
-                } else if (element.tagName.toLowerCase() === 'span') {
-                    // 時間範囲を追加
-                    text += element.innerText + '\n';  // 時間も改行とともに追加
-                }
-            });
-
-            var textArea = document.createElement("textarea");
-            textArea.value = text.trim();  // 最後の余計な改行を削除
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            alert("空き時間がクリップボードにコピーされました!");
-        }
-        // フォーム送信時にローディングを表示
-        document.querySelector('form').addEventListener('submit', function(event) {
-            document.getElementById('loading').classList.remove('hidden');
-        });        
-    </script>
-
-</body>
-</html>
+{% block extra_js %}
+<script>
+    function copyToClipboard() {
+        var resultDiv = document.getElementById('free-time-result');
+        var text = '';
+        var spans = resultDiv.querySelectorAll('h4, span.time-range');
+        spans.forEach(function(element) {
+            if (element.tagName.toLowerCase() === 'h4') {
+                text += '\n' + element.innerText + '\n';
+            } else if (element.tagName.toLowerCase() === 'span') {
+                text += element.innerText + '\n';
+            }
+        });
+        var textArea = document.createElement("textarea");
+        textArea.value = text.trim();
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        alert("空き時間がクリップボードにコピーされました!");
+    }
+    document.querySelector('form').addEventListener('submit', function(event) {
+        document.getElementById('loading').classList.remove('hidden');
+    });
+</script>
+{% endblock %}

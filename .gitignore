@@ -3,3 +3,5 @@ env
 .gcloudignore
 app.yaml
 .env
+__pycache__/
+*.pyc
