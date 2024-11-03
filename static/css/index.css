@@ -1,5 +1,6 @@
 main {
     flex: 1;
+    margin-top: 20px;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -25,6 +26,12 @@ main p {
     flex-wrap: wrap; /* ボタンが狭い画面で折り返される */
 }
 
+.features-section, .google-integration {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+}
 .btn-container a {
     padding: 10px 20px;
     font-size: 1.1em;
@@ -41,11 +48,13 @@ main p {
 
 .profile-section {
     margin-top: 40px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    background-color: #bbafafa4;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1); 
     text-align: center;
+    max-width: 800px;
+    margin: 40px auto; /* カードを中央揃え */
 }
 
 .profile-container {
@@ -53,7 +62,7 @@ main p {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    flex-wrap: wrap; /* 狭い画面で要素を縦並びにする */
+    flex-wrap: wrap;
 }
 
 .profile-photo img {
@@ -61,7 +70,7 @@ main p {
     height: 150px;
     object-fit: cover;
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 画像にも影を追加 */
 }
 
 .profile-info {
@@ -71,16 +80,31 @@ main p {
 
 .profile-info p, .profile-info h4 {
     margin: 10px 0;
+    color: #333;
+    font-weight: 500;
 }
 
 .profile-info a {
     color: #4CAF50;
     text-decoration: none;
+    font-weight: bold;
 }
 
 .profile-info a:hover {
     text-decoration: underline;
 }
+
+/* リンクのスタイル */
+main a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+main a:hover {
+    text-decoration: underline;
+}
+
 
 /* スマホ対応（画面幅768px以下） */
 @media (max-width: 768px) {
@@ -123,3 +147,4 @@ main p {
         font-size: 0.95em;
     }
 }
+

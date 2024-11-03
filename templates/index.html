@@ -6,16 +6,27 @@
 {% endblock %}
 
 {% block content %}
-    <h2>ようこそ！</h2>
-    <p>このシステムは、あなたの空き時間を簡単に検索し、メールの返信作成をサポートするためのツールです。目的に合わせて、以下の機能をお使いください。</p>
+    <div class="main-content">
+        <h2>ようこそ！</h2>
+        <p>このシステムは、あなたの空き時間を簡単に検索し、メールの返信作成をサポートするためのツールです。目的に合わせて、以下の機能をお使いください。</p>
+    </div>
     
     <div class="btn-container">
         <a href="{{ url_for('calendar.free_times') }}">空き時間検索</a>
         <a href="{{ url_for('reply.get_reply') }}">返信メール作成</a>
     </div>
 
-    <h3>Googleカレンダーの連携について</h3>
-    <p>このシステムはGoogleカレンダーから予定を取得しているため、Googleアカウントでのログインが必要となります。Googleカレンダーへのアクセスを許可してくださいますようお願いいたします。</p>
+    <div class="features-section">
+        <h3>このWEBアプリの機能まとめ</h3>
+        <p>このWEBアプリの機能をまとめたものはこちら: 
+            <a href="https://zenn.dev/mojitakanori/articles/653179e9f4a429" target="_blank">機能説明ページ</a>
+        </p>
+    </div>
+
+    <div class="google-integration">
+        <h3>Googleカレンダーの連携について</h3>
+        <p>このシステムはGoogleカレンダーから予定を取得しているため、Googleアカウントでのログインが必要となります。Googleカレンダーへのアクセスを許可してくださいますようお願いいたします。</p>
+    </div>
 
     <!-- Googleログインボタン -->
     <div class="btn-container">
