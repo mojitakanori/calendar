@@ -5,3 +5,4 @@ app.yaml
 .env
 __pycache__/
 *.pyc
+myproject-firebase-admin-sdk-service-account.json

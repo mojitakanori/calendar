@@ -48,13 +48,11 @@ main p {
 
 .profile-section {
     margin-top: 40px;
-    padding: 30px;
-    background-color: #bbafafa4;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1); 
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
-    max-width: 800px;
-    margin: 40px auto; /* カードを中央揃え */
 }
 
 .profile-container {

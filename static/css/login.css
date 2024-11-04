@@ -3,9 +3,33 @@
 h2 {
     color: #2c3e50;
     font-size: 2em;
+    margin-top: 30px;
     margin-bottom: 15px;
     text-align: center;
 }
+
+h3 {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+main p {
+    font-size: 1.1em;
+    color: #555;
+    text-align: center;
+}
+
+/* リンクのスタイル */
+main a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+main a:hover {
+    text-decoration: underline;
+}
+
 
 
 form {
@@ -47,4 +71,12 @@ form button {
 
 form button:hover {
     background-color: #45a049;
+}
+
+.features-section {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
 }

@@ -15,6 +15,7 @@ def get_reply():
     if request.method == 'GET':
         # 通常のログイン確認
         if 'logged_in' not in session or not session['logged_in']:
+            flash('まずログインをしてください。', 'error')
             return redirect(url_for('auth.login'))
         # セッションからデータを取得し初期値として利用
         start_date = session.get('start_date', '')

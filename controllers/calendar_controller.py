@@ -1,7 +1,7 @@
 # Googleカレンダーや空き時間検索関連のルート
 
 # controllers/calendar_controller.py
-from flask import Blueprint, session, render_template, request, redirect, url_for
+from flask import Blueprint, session, render_template, request, flash, redirect, url_for
 from services.calendar_service import fetch_free_times
 from datetime import datetime
 from google.oauth2.credentials import Credentials
@@ -42,6 +42,7 @@ def free_times():
 
     # 通常のログイン確認
     if 'logged_in' not in session or not session['logged_in']:
+        flash('まずログインをしてください。', 'error')
         return redirect(url_for('auth.login'))
 
     # GETリクエストの場合、セッションのデータを引き出し初期値としてフォームに設定
