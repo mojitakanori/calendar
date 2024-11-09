@@ -5,7 +5,7 @@ from controllers.reply_controller import reply_bp
 import os
 
 
-# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # ローカル環境でHTTPを許可
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # ローカル環境でHTTPを許可
 # 本番では消す！！！！！！！！！！！！！！！！
 
 app = Flask(__name__)

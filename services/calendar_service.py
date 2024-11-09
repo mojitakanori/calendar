@@ -14,9 +14,10 @@ def fetch_free_times(service, start_date, end_date, day_start_hour, day_end_hour
             continue
 
         tz = pytz.timezone('Asia/Tokyo')
+        # タイムゾーン付きの日時オブジェクトを作成
         day_start = tz.localize(datetime.combine(current_date, time(day_start_hour, 0, 0)))
         day_end = tz.localize(datetime.combine(current_date, time(day_end_hour, 0, 0)))
-
+        
         # 当日のイベントを取得
         events_result = service.events().list(
             calendarId='primary',
@@ -72,9 +73,14 @@ def fetch_free_times(service, start_date, end_date, day_start_hour, day_end_hour
 
 def parse_event_time(event_time):
     if 'dateTime' in event_time:
-        return isoparse(event_time['dateTime'])
+        dt = isoparse(event_time['dateTime'])
     else:
-        return isoparse(event_time['date'])
+        dt = isoparse(event_time['date'])
+    
+    # タイムゾーンがない場合はUTCを設定
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=pytz.utc)
+    return dt
 
 
 def is_holiday(date, service):
